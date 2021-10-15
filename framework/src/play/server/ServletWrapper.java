@@ -341,6 +341,7 @@ public class ServletWrapper extends HttpServlet implements ServletContextListene
                 playCookie.path = cookie.getPath();
                 playCookie.domain = cookie.getDomain();
                 playCookie.secure = cookie.getSecure();
+                playCookie.httpOnly = cookie.isHttpOnly();
                 playCookie.value = cookie.getValue();
                 playCookie.maxAge = cookie.getMaxAge();
                 cookies.put(playCookie.name, playCookie);
@@ -397,6 +398,7 @@ public class ServletWrapper extends HttpServlet implements ServletContextListene
                     if (cookie.sendOnError) {
                         Cookie c = new Cookie(cookie.name, cookie.value);
                         c.setSecure(cookie.secure);
+                        c.setHttpOnly(cookie.httpOnly);
                         c.setPath(cookie.path);
                         if (cookie.domain != null) {
                             c.setDomain(cookie.domain);
@@ -473,6 +475,7 @@ public class ServletWrapper extends HttpServlet implements ServletContextListene
         for (Http.Cookie cookie : cookies.values()) {
             Cookie c = new Cookie(cookie.name, cookie.value);
             c.setSecure(cookie.secure);
+            c.setHttpOnly(cookie.httpOnly);
             c.setPath(cookie.path);
             if (cookie.domain != null) {
                 c.setDomain(cookie.domain);
@@ -508,7 +511,7 @@ public class ServletWrapper extends HttpServlet implements ServletContextListene
 
     }
 
-    private void copyStream(HttpServletResponse servletResponse, InputStream is) throws IOException {        
+    private void copyStream(HttpServletResponse servletResponse, InputStream is) throws IOException {
         if (servletResponse != null && is != null) {
             try {
                 OutputStream os = servletResponse.getOutputStream();

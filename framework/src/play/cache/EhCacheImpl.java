@@ -14,7 +14,7 @@ import play.Logger;
  * full-featured and this has made it the most widely-used Java-based cache.</p>
  *
  * Expiration is specified in seconds
- * 
+ *
  * @see <a href="http://ehcache.org/">http://ehcache.org/</a>
  *
  */
@@ -118,6 +118,9 @@ public class EhCacheImpl implements CacheImpl {
     @Override
     public boolean safeAdd(String key, Object value, int expiration) {
         try {
+            if (cache.get(key) != null) {
+                return false;
+            }
             add(key, value, expiration);
             return true;
         } catch (Exception e) {

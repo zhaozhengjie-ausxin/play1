@@ -25,7 +25,7 @@
     </path>
 
     <target name="clean" description="clean resources">
-        <delete dir="classes" /> 
+        <delete dir="classes" />
         <delete dir="dist" />
         <delete dir="tests-results" />
         <delete dir="tests-tmp" />
@@ -46,7 +46,7 @@
                 <include name="**/data/**"/>
                 <include name="**/logs/**"/>
                 <include name="**/i-am-working-here/**"/>
-            </fileset> 
+            </fileset>
         </delete>
         <antcall target="clean-unittest"/>
     </target>
@@ -56,7 +56,7 @@
             <arg value="describe" />
             <arg value="--always" />
         </exec>
-        <condition property="version" value="${baseversion}-${gitversion}" else="${baseversion}-localbuild">
+        <condition property="version" value="${baseversion}-ausxin">
             <equals arg1="" arg2="${giterror}" trim="true" />
         </condition>
         <echo message="Version ${version}"></echo>
@@ -97,7 +97,7 @@
             <tag name="todo" scope="all" description="To do:"/>
             <group title="Libs" packages="play.libs.*"/>
             <link offline="false" href="http://docs.oracle.com/javaee/7/api/" />
-            <link offline="false" href="http://docs.oracle.com/javase/7/docs/api/" />      
+            <link offline="false" href="http://docs.oracle.com/javase/7/docs/api/" />
             <link offline="false" href="http://commons.apache.org/proper/commons-fileupload/apidocs/" />
             <link offline="false" href="http://google-gson.googlecode.com/svn/tags/gson-2.2.4/docs/javadocs/" />
             <link offline="false" href="https://docs.jboss.org/hibernate/orm/4.2/javadocs/" />
@@ -162,7 +162,7 @@
             <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.port},server=y,suspend=n"/>
             <jvmarg value="${profiler.info.jvmargs.agent}"/>
             <jvmarg value="${jvm.memory}"/>
-        </java>	
+        </java>
     </target>
 
     <target name="nb-run-application">
@@ -189,7 +189,7 @@
             <jvmarg value="-Xdebug"/>
             <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.port},server=y,suspend=n"/>
             <jvmarg value="${jvm.memory}"/>
-        </java>	
+        </java>
     </target>
 
     <target name="nb-debug">
@@ -223,7 +223,7 @@
             <jvmarg value="-javaagent:${basedir}/play-${version}.jar" />
             <jvmarg value="-Xdebug"/>
             <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.port},server=y,suspend=n"/>
-        </java>	
+        </java>
     </target>
 
     <target name="test-in-nb" depends="test">
@@ -237,7 +237,7 @@
             <include name="**/*.java"/>
         </javac>
     </target>
-    
+
     <target name="build-test-modules">
         <ant antfile="build.xml" target="build" dir="../samples-and-tests/modules/testModule" >
             <property name="play.path" value="../../../"/>
@@ -257,7 +257,7 @@
         <echo message="Testing unittests" />
 
         <antcall target="unittest" />
-        
+
         <echo message="Testing development lifecycle (wait ...)" />
 
         <exec executable="python" failonerror="true">
@@ -403,7 +403,7 @@
     </target>
 
     <target name="package" depends="clean,version,jar,javadoc">
-        <mkdir dir="dist" /> 
+        <mkdir dir="dist" />
         <zip destfile="dist/play-${version}.zip" comment="Play! ${version}" update="false">
             <zipfileset prefix="play-${version}" dir=".." includes="**/*" excludes="**/cobertura.ser,**/*.pyc,hs_err*,.*,.*/*,framework/dist/**,id,play,nbproject/**,**/.bzr/**,**/.git/**,*.bzrignore,support/textmate/**,framework/classes/**,framework/tests-results/**,samples-and-tests/**/test-result,samples-and-tests/**/i-am-working-here,samples-and-tests/**/data,samples-and-tests/**/logs,samples-and-tests/**/tmp,samples-and-tests/**/db,samples-and-tests/**/attachments,modules/**" />
             <zipfileset prefix="play-${version}" dir=".." includes="play" filemode="777" />

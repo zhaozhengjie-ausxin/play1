@@ -10,8 +10,10 @@ import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import net.spy.memcached.AddrUtil;
 import net.spy.memcached.ConnectionFactory;
@@ -91,7 +93,7 @@ public class MemcachedImpl implements CacheImpl {
 
     public void initClient() throws IOException {
         System.setProperty("net.spy.log.LoggerImpl", "net.spy.memcached.compat.log.Log4JLogger");
-        
+
         List<InetSocketAddress> addrs;
         if (Play.configuration.containsKey("memcached.host")) {
             addrs = AddrUtil.getAddresses(Play.configuration.getProperty("memcached.host"));
@@ -106,14 +108,14 @@ public class MemcachedImpl implements CacheImpl {
         } else {
             throw new ConfigurationException("Bad configuration for memcached: missing host(s)");
         }
-        
+
         if (Play.configuration.containsKey("memcached.user")) {
             String memcacheUser = Play.configuration.getProperty("memcached.user");
             String memcachePassword = Play.configuration.getProperty("memcached.password");
             if (memcachePassword == null) {
                 throw new ConfigurationException("Bad configuration for memcached: missing password");
             }
-            
+
             // Use plain SASL to connect to memcached
             AuthDescriptor ad = new AuthDescriptor(new String[]{"PLAIN"},
                                     new PlainCallbackHandler(memcacheUser, memcachePassword));
@@ -121,7 +123,7 @@ public class MemcachedImpl implements CacheImpl {
                                         .setProtocol(ConnectionFactoryBuilder.Protocol.BINARY)
                                         .setAuthDescriptor(ad)
                                         .build();
-            
+
             client = new MemcachedClient(cf, addrs);
         } else {
             client = new MemcachedClient(addrs);
@@ -182,6 +184,17 @@ public class MemcachedImpl implements CacheImpl {
 
     @Override
     public boolean safeAdd(String key, Object value, int expiration) {
+        Future<Object> futureObj = client.asyncGet(key, tc);
+        try {
+            Object obj = futureObj.get(1, TimeUnit.SECONDS);;
+            if (obj != null) {
+                return false;
+            }
+        } catch (Exception e) {
+            futureObj.cancel(false);
+            return false;
+        }
+
         Future<Boolean> future = client.add(key, expiration, value, tc);
         try {
             return future.get(1, TimeUnit.SECONDS);
